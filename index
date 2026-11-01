@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Pintar - Belajar Membaca & Berhitung SD Kelas 1</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts: Fredoka & Quicksand -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        quicksand: ['Quicksand', 'sans-serif']
+                    },
+                    colors: {
+                        skyBlue: '#38bdf8',
+                        cheerfulYellow: '#facc15',
+                        appleGreen: '#4ade80',
+                        coralOrange: '#fb923c',
+                        bubblePink: '#f472b6',
+                        softPurple: '#c084fc'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 40%, #bae6fd 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .landscape-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 1400px;
+            max-height: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .bounce-gentle {
+            animation: bounceGentle 2s infinite ease-in-out;
+        }
+
+        @keyframes bounceGentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .pop-btn {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.15);
+        }
+        .pop-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 0 rgba(0, 0, 0, 0.15);
+        }
+        .pop-btn:active {
+            transform: translateY(4px) scale(0.98);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        .glass-box {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(8px);
+            border: 4px solid #ffffff;
+            border-radius: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .split-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1.5rem;
+            border: 3px solid #ffffff;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-2 sm:p-4" onclick="enableAudioContext()">
+
+    <!-- CANVAS CONFETTI OVERLAY -->
+    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <!-- MAIN HORIZONTAL GAME CONTAINER -->
+    <div class="landscape-container bg-sky-200 rounded-3xl border-8 border-white/80 shadow-2xl overflow-hidden flex flex-col">
+
+        <!-- TOP HORIZONTAL HEADER / NAV BAR -->
+        <header class="bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 p-3 px-6 border-b-4 border-amber-600 flex items-center justify-between text-white shrink-0 shadow-md">
+            <!-- Brand & Mascot Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="showScreen('screen-main-menu')">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-inner border-2 border-yellow-300 bounce-gentle">
+                    🦁
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black text-amber-950 tracking-wide font-fredoka leading-none drop-shadow-sm">
+                        Petualangan Pintar
+                    </h1>
+                    <span class="text-xs font-bold text-amber-900 bg-yellow-200 px-2 py-0.5 rounded-full inline-block mt-1">
+                        SD Kelas 1
+                    </span>
+                </div>
+            </div>
+
+            <!-- Global Status Bar -->
+            <div id="global-status-bar" class="hidden md:flex items-center space-x-4 bg-amber-950/20 px-4 py-1.5 rounded-2xl border border-amber-200/50">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">👤</span>
+                    <span id="display-player-name" class="font-black text-amber-950 text-sm">Pemain</span>
+                </div>
+                <div class="h-5 w-0.5 bg-amber-300/50"></div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">⭐</span>
+                    <span id="display-player-score" class="font-black text-yellow-100 text-lg">0 Poin</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-2">
+                <button onclick="toggleAudio()" id="btn-sound" class="pop-btn w-10 h-10 bg-white text-amber-900 rounded-xl flex items-center justify-center text-xl font-bold" title="Pengaturan Suara">
+                    🔊
+                </button>
+                <button onclick="openModal('modal-leaderboard')" class="pop-btn w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center text-xl font-bold" title="Papan Peringkat">
+                    🏆
+                </button>
+                <button onclick="openModal('modal-guide')" class="pop-btn w-10 h-10 bg-sky-500 text-white rounded-xl flex items-center justify-center text-xl font-bold" title="Panduan Bermain">
+                    ❓
+                </button>
+                <button onclick="showScreen('screen-main-menu')" class="pop-btn w-10 h-10 bg-rose-500 text-white rounded-xl flex items-center justify-center text-xl font-bold" title="Kembali ke Menu Utama">
+                    🏠
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN VIEW AREA -->
+        <main id="main-content" class="flex-1 relative overflow-hidden bg-gradient-to-b from-sky-100 to-sky-300 p-4 sm:p-6 flex items-center justify-center">
+
+            <!-- 1. SCREEN: MAIN MENU -->
+            <section id="screen-main-menu" class="w-full h-full flex flex-col md:flex-row items-center justify-between gap-6 p-4">
+                <!-- Mascot & Welcome Card -->
+                <div class="w-full md:w-5/12 h-full glass-box p-6 flex flex-col items-center justify-center text-center">
+                    <div class="relative">
+                        <div class="w-32 h-32 sm:w-40 sm:h-40 bg-yellow-300 rounded-full flex items-center justify-center text-7xl sm:text-8xl shadow-xl border-4 border-white bounce-gentle">
+                            🦁
+                        </div>
+                        <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md">
+                            Kiki si Singa
+                        </span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black text-sky-900 mt-3 font-fredoka">
+                        Halo, Teman Pintar!
+                    </h2>
+                    <p class="text-xs sm:text-sm font-bold text-sky-700 mt-1">
+                        Pilih Mode Bermain & Bersiaplah Petualangan Dimulai!
+                    </p>
+                    <div class="mt-3 flex items-center gap-2 bg-amber-100 px-3 py-1.5 rounded-full border border-amber-300 text-amber-900 text-xs font-bold">
+                        <span>🎵 Musik Latar Ceria Aktif</span>
+                    </div>
+                </div>
+
+                <!-- Main Menu Action Grid -->
+                <div class="w-full md:w-7/12 h-full flex flex-col justify-center gap-3">
+                    <button onclick="promptPlayerNames('single')" class="pop-btn w-full py-3.5 px-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-3xl border-b-8 border-emerald-700 flex items-center justify-between group">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-3xl bg-white/20 p-2 rounded-2xl">🎮</span>
+                            <div class="text-left">
+                                <span class="block text-lg sm:text-xl font-black font-fredoka">Mode Individu</span>
+                                <span class="block text-xs font-bold text-emerald-100">1 Pemain bermain mandiri</span>
+                            </div>
+                        </div>
+                        <span class="text-2xl group-hover:translate-x-2 transition">➔</span>
+                    </button>
+
+                    <button onclick="promptPlayerNames('duel')" class="pop-btn w-full py-3.5 px-5 bg-amber-500 hover:bg-amber-600 text-white rounded-3xl border-b-8 border-amber-700 flex items-center justify-between group">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-3xl bg-white/20 p-2 rounded-2xl">⚔️</span>
+                            <div class="text-left">
+                                <span class="block text-lg sm:text-xl font-black font-fredoka">Mode Duel (2 Pemain)</span>
+                                <span class="block text-xs font-bold text-amber-100">Layar Terbagi 2 - Soal Berbeda tiap Pemain</span>
+                            </div>
+                        </div>
+                        <span class="text-2xl group-hover:translate-x-2 transition">➔</span>
+                    </button>
+
+                    <button onclick="promptPlayerNames('4player')" class="pop-btn w-full py-3.5 px-5 bg-purple-500 hover:bg-purple-600 text-white rounded-3xl border-b-8 border-purple-700 flex items-center justify-between group">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-3xl bg-white/20 p-2 rounded-2xl">👨‍👧‍👦</span>
+                            <div class="text-left">
+                                <span class="block text-lg sm:text-xl font-black font-fredoka">Mode 4 Pemain Split-Screen</span>
+                                <span class="block text-xs font-bold text-purple-100">Layar 4 Grid - Soal Unik Tiap Anak</span>
+                            </div>
+                        </div>
+                        <span class="text-2xl group-hover:translate-x-2 transition">➔</span>
+                    </button>
+
+                    <button onclick="promptPlayerNames('group')" class="pop-btn w-full py-3.5 px-5 bg-rose-500 hover:bg-rose-600 text-white rounded-3xl border-b-8 border-rose-700 flex items-center justify-between group">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-3xl bg-white/20 p-2 rounded-2xl">🤝</span>
+                            <div class="text-left">
+                                <span class="block text-lg sm:text-xl font-black font-fredoka">Mode Kelompok (Tim)</span>
+                                <span class="block text-xs font-bold text-rose-100">Pilih 2-4 Nama Tim - Soal Berbeda tiap Kelompok</span>
+                            </div>
+                        </div>
+                        <span class="text-2xl group-hover:translate-x-2 transition">➔</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 2. SCREEN: TOPIC & DIFFICULTY SELECTOR -->
+            <section id="screen-select-topic" class="hidden w-full h-full flex flex-col justify-between p-2 sm:p-4">
+                <div class="text-center mb-2">
+                    <h2 class="text-2xl sm:text-3xl font-black text-sky-900 font-fredoka">Pilih Materi Petualangan</h2>
+                    <p class="text-xs sm:text-sm font-bold text-sky-700">Pilih topik yang ingin dipelajari bersama</p>
+                </div>
+
+                <!-- Subject Selection Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-auto">
+                    <button onclick="selectTopic('word')" class="pop-btn glass-box p-4 flex flex-col items-center text-center hover:border-emerald-400 group">
+                        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-4xl mb-2 group-hover:scale-110 transition">
+                            📖
+                        </div>
+                        <h3 class="font-black text-emerald-800 text-base sm:text-lg">Membaca Kata</h3>
+                        <p class="text-xs font-bold text-slate-500 mt-1">Huruf, Suku Kata & Gambar</p>
+                    </button>
+
+                    <button onclick="selectTopic('sentence')" class="pop-btn glass-box p-4 flex flex-col items-center text-center hover:border-sky-400 group">
+                        <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center text-4xl mb-2 group-hover:scale-110 transition">
+                            💬
+                        </div>
+                        <h3 class="font-black text-sky-800 text-base sm:text-lg">Membaca Kalimat</h3>
+                        <p class="text-xs font-bold text-slate-500 mt-1">Lengkapi & Susun Kalimat</p>
+                    </button>
+
+                    <button onclick="selectTopic('addition')" class="pop-btn glass-box p-4 flex flex-col items-center text-center hover:border-amber-400 group">
+                        <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-4xl mb-2 group-hover:scale-110 transition">
+                            ➕
+                        </div>
+                        <h3 class="font-black text-amber-800 text-base sm:text-lg">Penjumlahan</h3>
+                        <p class="text-xs font-bold text-slate-500 mt-1">Tambah Benda (1-20)</p>
+                    </button>
+
+                    <button onclick="selectTopic('subtraction')" class="pop-btn glass-box p-4 flex flex-col items-center text-center hover:border-rose-400 group">
+                        <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-4xl mb-2 group-hover:scale-110 transition">
+                            ➖
+                        </div>
+                        <h3 class="font-black text-rose-800 text-base sm:text-lg">Pengurangan</h3>
+                        <p class="text-xs font-bold text-slate-500 mt-1">Kurang Benda (1-20)</p>
+                    </button>
+                </div>
+
+                <!-- Difficulty Selector Row -->
+                <div id="difficulty-selector-container" class="glass-box p-3 flex items-center justify-center space-x-4 mt-2">
+                    <span class="font-black text-sky-900 text-sm">Tingkat Kesulitan:</span>
+                    <button onclick="setDifficulty('easy')" id="diff-easy" class="pop-btn px-4 py-1.5 bg-emerald-500 text-white rounded-xl font-bold text-xs border-2 border-emerald-600">Mudah (1-10)</button>
+                    <button onclick="setDifficulty('medium')" id="diff-medium" class="pop-btn px-4 py-1.5 bg-amber-100 text-amber-800 rounded-xl font-bold text-xs">Sedang (1-15)</button>
+                    <button onclick="setDifficulty('hard')" id="diff-hard" class="pop-btn px-4 py-1.5 bg-rose-100 text-rose-800 rounded-xl font-bold text-xs">Sulit (1-20)</button>
+                </div>
+            </section>
+
+            <!-- 2.5 SCREEN: QUESTION COUNT SELECTOR -->
+            <section id="screen-select-qcount" class="hidden w-full h-full flex flex-col items-center justify-center p-4">
+                <div class="glass-box p-6 max-w-lg w-full text-center">
+                    <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-3 shadow-inner bounce-gentle">
+                        🎯
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black text-sky-900 font-fredoka mb-1">Berapa Banyak Soal?</h2>
+                    <p class="text-xs sm:text-sm font-bold text-sky-700 mb-6">Pilih jumlah soal yang ingin dimainkan dalam petualangan ini:</p>
+
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <button onclick="setQuestionCount(5)" id="btn-qcount-5" class="pop-btn py-3 px-4 bg-emerald-500 text-white rounded-2xl font-black text-lg border-b-4 border-emerald-700 flex items-center justify-center space-x-2">
+                            <span>⭐</span>
+                            <span>5 Soal</span>
+                        </button>
+                        <button onclick="setQuestionCount(10)" id="btn-qcount-10" class="pop-btn py-3 px-4 bg-sky-100 text-sky-800 hover:bg-sky-500 hover:text-white rounded-2xl font-black text-lg border-b-4 border-sky-300 flex items-center justify-center space-x-2">
+                            <span>🌟</span>
+                            <span>10 Soal</span>
+                        </button>
+                        <button onclick="setQuestionCount(15)" id="btn-qcount-15" class="pop-btn py-3 px-4 bg-amber-100 text-amber-800 hover:bg-amber-500 hover:text-white rounded-2xl font-black text-lg border-b-4 border-amber-300 flex items-center justify-center space-x-2">
+                            <span>✨</span>
+                            <span>15 Soal</span>
+                        </button>
+                        <button onclick="setQuestionCount(20)" id="btn-qcount-20" class="pop-btn py-3 px-4 bg-purple-100 text-purple-800 hover:bg-purple-500 hover:text-white rounded-2xl font-black text-lg border-b-4 border-purple-300 flex items-center justify-center space-x-2">
+                            <span>🏆</span>
+                            <span>20 Soal</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-center space-x-3">
+                        <button onclick="showScreen('screen-select-topic')" class="pop-btn px-4 py-2 bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">
+                            ⬅️ Kembali Pilih Materi
+                        </button>
+                        <button onclick="startNewGameSession()" class="pop-btn px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm rounded-xl border-b-4 border-emerald-700">
+                            Mulai Bermain! 🚀
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. SCREEN: GAMEPLAY ARENA -->
+            <section id="screen-gameplay" class="hidden w-full h-full flex flex-col justify-between">
+                <!-- Gameplay Top Bar -->
+                <div class="glass-box p-2.5 px-5 flex items-center justify-between shrink-0 mb-2">
+                    <div id="gameplay-player-badge" class="flex items-center space-x-2 bg-amber-400 text-amber-950 px-3 py-1 rounded-2xl font-black text-xs sm:text-sm shadow">
+                        <span>🎮</span>
+                        <span id="gameplay-mode-label">Mode Permainan</span>
+                    </div>
+
+                    <div id="gameplay-question-count" class="font-black text-sky-900 text-xs sm:text-sm">
+                        Ronde <span id="current-q-num">1</span> dari <span id="total-q-num">5</span>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <div id="gameplay-timer-badge" class="bg-rose-500 text-white px-3 py-1 rounded-xl font-black text-xs flex items-center space-x-1">
+                            <span>⏱️</span>
+                            <span id="gameplay-timer-val">20s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SPLIT SCREEN GRID CONTAINER -->
+                <div id="split-screen-grid" class="flex-1 grid gap-2 overflow-y-auto p-1">
+                    <!-- Dynamic player panel cards -->
+                </div>
+
+                <!-- Gameplay Bottom Feedback -->
+                <div class="glass-box p-2 px-4 mt-2 flex items-center justify-between text-xs font-bold text-sky-900 shrink-0">
+                    <div id="feedback-message" class="w-full text-center font-black text-xs sm:text-sm text-emerald-600 flex items-center justify-center gap-1">
+                        ✨ Setiap pemain/kelompok mendapatkan soal berbeda! Jawab dengan teliti!
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. SCREEN: RESULT & PODIUM RANKING -->
+            <section id="screen-result" class="hidden w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 overflow-y-auto">
+                <div class="glass-box p-5 max-w-2xl w-full text-center relative">
+                    <h2 class="text-2xl sm:text-3xl font-black text-sky-900 font-fredoka">Hore! Permainan Selesai! 🎉</h2>
+                    <p id="result-subtitle" class="text-xs sm:text-sm font-bold text-sky-700 mt-0.5">Peringkat Pemenang Petualangan Hari Ini!</p>
+
+                    <!-- PODIUM RANKING DISPLAY -->
+                    <div id="podium-container" class="flex items-end justify-center gap-2 sm:gap-4 my-4 h-44 sm:h-52 pt-4 px-2 border-b-4 border-sky-300">
+                        <!-- Podium items injected dynamically -->
+                    </div>
+
+                    <!-- RECAP TABLE -->
+                    <div id="result-recap-list" class="bg-amber-50 rounded-2xl p-3 border-2 border-amber-200 text-xs font-bold text-amber-950 space-y-1 mb-4 max-h-28 overflow-y-auto">
+                        <!-- Detailed Scores injected dynamically -->
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center justify-center space-x-4">
+                        <button onclick="restartCurrentGame()" class="pop-btn px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black text-xs sm:text-sm border-b-4 border-emerald-700">
+                            🔄 Main Lagi
+                        </button>
+                        <button onclick="showScreen('screen-main-menu')" class="pop-btn px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black text-xs sm:text-sm border-b-4 border-sky-700">
+                            🏠 Menu Utama
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL: REGISTER PLAYER / TEAM NAMES -->
+    <div id="modal-player-names" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-box p-6 max-w-md w-full relative">
+            <button onclick="closeModal('modal-player-names')" class="absolute top-4 right-4 text-2xl font-black text-slate-400 hover:text-slate-600">✖</button>
+            <h3 id="modal-names-title" class="text-2xl font-black text-sky-900 font-fredoka mb-1 flex items-center gap-2">
+                📝 Daftarkan Nama
+            </h3>
+            <p id="modal-names-subtitle" class="text-xs font-bold text-slate-500 mb-4">Masukkan nama pemain sebelum memulai petualangan</p>
+
+            <div id="inputs-player-container" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                <!-- Inputs injected dynamically -->
+            </div>
+
+            <button onclick="confirmPlayerNames()" class="w-full mt-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm rounded-2xl border-b-4 border-emerald-700 pop-btn">
+                Lanjut Pilih Materi ➔
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: LEADERBOARD -->
+    <div id="modal-leaderboard" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-box p-6 max-w-md w-full relative">
+            <button onclick="closeModal('modal-leaderboard')" class="absolute top-4 right-4 text-2xl font-black text-slate-400 hover:text-slate-600">✖</button>
+            <h3 class="text-2xl font-black text-sky-900 font-fredoka mb-4 flex items-center gap-2">
+                🏆 Papan Peringkat
+            </h3>
+            <div id="leaderboard-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                <!-- Leaderboard items injected here -->
+            </div>
+            <button onclick="clearLeaderboard()" class="w-full mt-4 py-2 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-xl font-bold text-xs">
+                Hapus Riwayat Poin
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: GUIDE -->
+    <div id="modal-guide" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-box p-6 max-w-md w-full relative">
+            <button onclick="closeModal('modal-guide')" class="absolute top-4 right-4 text-2xl font-black text-slate-400 hover:text-slate-600">✖</button>
+            <h3 class="text-2xl font-black text-sky-900 font-fredoka mb-3 flex items-center gap-2">
+                📖 Panduan Bermain
+            </h3>
+            <div class="space-y-3 text-xs font-semibold text-slate-700 max-h-72 overflow-y-auto leading-relaxed">
+                <p>1. <strong>Mode Individu:</strong> Jawab soal secara mandiri untuk mengumpulkan poin.</p>
+                <p>2. <strong>Mode Duel, 4 Pemain & Kelompok:</strong> Setiap layar panel mendapatkan soal unik dan acak. Siapa yang paling cepat dan tepat menjawab, dialah pemenang!</p>
+                <p>3. <strong>Suara Soal:</strong> Tekan tombol 🔊 di setiap panel pemain untuk mendengarkan soal dibacakan.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME LOGIC ENGINE -->
+    <script>
+        /* ------------------------------------------------------------------
+           1. QUESTION BANK
+           ------------------------------------------------------------------ */
+        const QUESTION_BANK = {
+            word: [
+                { visual: '🍎', q: 'Gambar apakah ini?', options: ['Apel', 'Ayam', 'Awan', 'Anggur'], answer: 'Apel' },
+                { visual: '📚', q: 'Pilih kata yang sesuai gambar:', options: ['Baju', 'Buku', 'Bola', 'Bunga'], answer: 'Buku' },
+                { visual: '⚽', q: 'Benda untuk bermain bola:', options: ['Bola', 'Batu', 'Bata', 'Bolu'], answer: 'Bola' },
+                { visual: '🐱', q: 'Hewan lucu di atas adalah:', options: ['Kucing', 'Kambing', 'Kelinci', 'Kuda'], answer: 'Kucing' },
+                { visual: '🏠', q: 'Tempat tinggal kita disebut:', options: ['Rumah', 'Roda', 'Roti', 'Rumput'], answer: 'Rumah' },
+                { visual: '🌺', q: 'Susun huruf acak ini: [B - U - N - G - A]', options: ['Bunga', 'Bagan', 'Bakar', 'Bangau'], answer: 'Bunga' },
+                { visual: '🥛', q: 'Minuman sehat untuk anak:', options: ['Susu', 'Sapu', 'Satu', 'Siku'], answer: 'Susu' },
+                { visual: '🐶', q: 'Hewan penjaga rumah:', options: ['Anjing', 'Ayam', 'Angsa', 'Arwana'], answer: 'Anjing' },
+                { visual: '🚗', q: 'Kendaraan roda empat:', options: ['Mobil', 'Motor', 'Meja', 'Mata'], answer: 'Mobil' },
+                { visual: '✏️', q: 'Alat untuk menulis di buku:', options: ['Pensil', 'Pintu', 'Pedang', 'Piring'], answer: 'Pensil' }
+            ],
+            sentence: [
+                { visual: '👩‍🍳', q: 'Lengkapi: "Ibu ... nasi di dapur."', options: ['memasak', 'membaca', 'memukul', 'memancing'], answer: 'memasak' },
+                { visual: '👦⚽', q: 'Lengkapi: "Budi bermain ... di lapangan."', options: ['bola', 'buku', 'batu', 'baju'], answer: 'bola' },
+                { visual: '👧📖', q: 'Manakah kalimat yang benar?', options: ['Siti membaca buku.', 'Siti makan buku.', 'Siti minum buku.', 'Siti terbang buku.'], answer: 'Siti membaca buku.' },
+                { visual: '🐱🥛', q: 'Lengkapi: "Kucing minum ..."', options: ['susu', 'roti', 'nasi', 'bunga'], answer: 'susu' },
+                { visual: '👨‍💼', q: 'Susun kata: [bekerja - Ayah - pergi]', options: ['Ayah pergi bekerja.', 'Pergi Ayah bekerja.', 'Bekerja Ayah pergi.', 'Ayah bekerja pergi.'], answer: 'Ayah pergi bekerja.' },
+                { visual: '👧🌸', q: 'Lengkapi: "Rina menyiram ..."', options: ['bunga', 'batu', 'buku', 'baju'], answer: 'bunga' }
+            ],
+            addition: [
+                { type: 'math_add', a: 3, b: 2, item: '🍎' },
+                { type: 'math_add', a: 5, b: 4, item: '🍬' },
+                { type: 'math_add', a: 6, b: 3, item: '✏️' },
+                { type: 'math_add', a: 8, b: 2, item: '🐥' },
+                { type: 'math_add', a: 10, b: 5, item: '🚗' },
+                { type: 'math_add', a: 7, b: 7, item: '🎈' },
+                { type: 'math_add', a: 4, b: 4, item: '⭐' },
+                { type: 'math_add', a: 9, b: 3, item: '🍊' },
+                { type: 'math_add', a: 2, b: 6, item: '🍦' }
+            ],
+            subtraction: [
+                { type: 'math_sub', a: 5, b: 2, item: '🍌' },
+                { type: 'math_sub', a: 8, b: 3, item: '🍪' },
+                { type: 'math_sub', a: 10, b: 4, item: '⭐' },
+                { type: 'math_sub', a: 12, b: 5, item: '🥕' },
+                { type: 'math_sub', a: 15, b: 5, item: '🐟' },
+                { type: 'math_sub', a: 7, b: 3, item: '🍓' },
+                { type: 'math_sub', a: 9, b: 4, item: '🍉' },
+                { type: 'math_sub', a: 14, b: 6, item: '⚽' }
+            ]
+        };
+
+        /* ------------------------------------------------------------------
+           2. GLOBAL STATE
+           ------------------------------------------------------------------ */
+        let currentGameMode = 'single';
+        let currentTopic = 'word';
+        let currentDifficulty = 'easy';
+        let soundEnabled = true;
+
+        let players = [];
+        let currentRound = 0;
+        let totalRounds = 5;
+        let roundTimer = null;
+        let timerSeconds = 20;
+
+        /* ------------------------------------------------------------------
+           3. BGM & SYNTHESIZER AUDIO ENGINE (WEB AUDIO API)
+           ------------------------------------------------------------------ */
+        let audioCtx = null;
+        let bgmInterval = null;
+        let isBgmPlaying = false;
+
+        function enableAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            if (!isBgmPlaying && soundEnabled) {
+                startBgm();
+            }
+        }
+
+        function playSynthTone(freq, type = 'sine', duration = 0.15, vol = 0.1) {
+            if (!soundEnabled || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        // Cheerful BGM Melody Loop for Kids
+        function startBgm() {
+            if (isBgmPlaying) return;
+            isBgmPlaying = true;
+            const melody = [
+                261.63, 329.63, 392.00, 523.25, 392.00, 329.63,
+                293.66, 349.23, 440.00, 523.25, 440.00, 349.23,
+                329.63, 392.00, 493.88, 587.33, 493.88, 392.00,
+                523.25, 392.00, 329.63, 261.63
+            ];
+            let noteIdx = 0;
+
+            bgmInterval = setInterval(() => {
+                if (soundEnabled && audioCtx) {
+                    playSynthTone(melody[noteIdx], 'triangle', 0.2, 0.03);
+                    noteIdx = (noteIdx + 1) % melody.length;
+                }
+            }, 300);
+        }
+
+        function stopBgm() {
+            clearInterval(bgmInterval);
+            isBgmPlaying = false;
+        }
+
+        function playSound(type) {
+            enableAudioContext();
+            if (!soundEnabled) return;
+
+            if (type === 'correct') {
+                playSynthTone(523.25, 'sine', 0.1, 0.2);
+                setTimeout(() => playSynthTone(659.25, 'sine', 0.1, 0.2), 100);
+                setTimeout(() => playSynthTone(783.99, 'sine', 0.2, 0.25), 200);
+            } else if (type === 'wrong') {
+                playSynthTone(220, 'sawtooth', 0.15, 0.2);
+                setTimeout(() => playSynthTone(174.61, 'sawtooth', 0.2, 0.2), 150);
+            } else if (type === 'click') {
+                playSynthTone(440, 'sine', 0.05, 0.1);
+            }
+        }
+
+        function speakQuestion(text) {
+            if (!soundEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('btn-sound').innerText = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) {
+                startBgm();
+            } else {
+                stopBgm();
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            }
+        }
+
+        /* ------------------------------------------------------------------
+           4. MODAL & SCREEN CONTROLLER
+           ------------------------------------------------------------------ */
+        function showScreen(screenId) {
+            playSound('click');
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+
+            if (screenId === 'screen-main-menu') {
+                document.getElementById('global-status-bar').classList.add('hidden');
+            } else {
+                document.getElementById('global-status-bar').classList.remove('hidden');
+            }
+        }
+
+        function openModal(id) {
+            playSound('click');
+            document.getElementById(id).classList.remove('hidden');
+            if (id === 'modal-leaderboard') renderLeaderboard();
+        }
+
+        function closeModal(id) {
+            playSound('click');
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        /* ------------------------------------------------------------------
+           5. REGISTER PLAYER NAMES BY MODE
+           ------------------------------------------------------------------ */
+        function promptPlayerNames(mode) {
+            currentGameMode = mode;
+            const container = document.getElementById('inputs-player-container');
+            container.innerHTML = '';
+
+            const titleElem = document.getElementById('modal-names-title');
+            const subElem = document.getElementById('modal-names-subtitle');
+
+            const avatars = ['🦁', '🦊', '🐼', '🐰', '🐯', '🐸'];
+            const colors = ['border-emerald-400', 'border-amber-400', 'border-sky-400', 'border-purple-400'];
+
+            if (mode === 'single') {
+                titleElem.innerText = '🎮 Mode Solo (1 Pemain)';
+                subElem.innerText = 'Masukkan namamu untuk memulai petualangan:';
+                container.innerHTML = `
+                    <div class="flex items-center space-x-2 bg-emerald-50 p-2.5 rounded-2xl border-2 border-emerald-300">
+                        <span class="text-3xl">🦁</span>
+                        <input type="text" id="input-p0" value="Pemain 1" placeholder="Nama Pemain..." class="w-full font-black text-emerald-900 bg-white px-3 py-2 rounded-xl border border-emerald-300 focus:outline-none">
+                    </div>
+                `;
+            } else if (mode === 'duel') {
+                titleElem.innerText = '⚔️ Mode Duel (2 Pemain)';
+                subElem.innerText = 'Masukkan nama Pemain 1 dan Pemain 2:';
+                for (let i = 0; i < 2; i++) {
+                    container.innerHTML += `
+                        <div class="flex items-center space-x-2 bg-amber-50 p-2.5 rounded-2xl border-2 ${colors[i]}">
+                            <span class="text-3xl">${avatars[i]}</span>
+                            <input type="text" id="input-p${i}" value="Pemain ${i+1}" placeholder="Nama Pemain ${i+1}..." class="w-full font-black text-amber-900 bg-white px-3 py-2 rounded-xl border border-amber-300 focus:outline-none">
+                        </div>
+                    `;
+                }
+            } else if (mode === '4player') {
+                titleElem.innerText = '👨‍👧‍👦 Mode 4 Pemain Split-Screen';
+                subElem.innerText = 'Masukkan nama 4 pemain:';
+                for (let i = 0; i < 4; i++) {
+                    container.innerHTML += `
+                        <div class="flex items-center space-x-2 bg-sky-50 p-2 rounded-2xl border-2 ${colors[i]}">
+                            <span class="text-2xl">${avatars[i]}</span>
+                            <input type="text" id="input-p${i}" value="Pemain ${i+1}" placeholder="Nama Pemain ${i+1}..." class="w-full font-black text-sky-900 bg-white px-2 py-1.5 rounded-xl border border-sky-300 focus:outline-none text-xs">
+                        </div>
+                    `;
+                }
+            } else if (mode === 'group') {
+                titleElem.innerText = '🤝 Mode Kelompok / Tim';
+                subElem.innerText = 'Masukkan nama kelompok/tim (2 - 4 Kelompok):';
+                const defaultTeams = ['Tim Merah 🔴', 'Tim Biru 🔵', 'Tim Hijau 🟢', 'Tim Kuning 🟡'];
+                for (let i = 0; i < 2; i++) {
+                    container.innerHTML += `
+                        <div class="flex items-center space-x-2 bg-rose-50 p-2.5 rounded-2xl border-2 ${colors[i]}">
+                            <span class="text-3xl">🚩</span>
+                            <input type="text" id="input-p${i}" value="${defaultTeams[i]}" placeholder="Nama Kelompok ${i+1}..." class="w-full font-black text-rose-900 bg-white px-3 py-2 rounded-xl border border-rose-300 focus:outline-none">
+                        </div>
+                    `;
+                }
+            }
+
+            openModal('modal-player-names');
+        }
+
+        function confirmPlayerNames() {
+            players = [];
+            const avatars = ['🦁', '🦊', '🐼', '🐰', '🐯', '🐸'];
+            const colors = ['bg-emerald-100 border-emerald-400', 'bg-amber-100 border-amber-400', 'bg-sky-100 border-sky-400', 'bg-purple-100 border-purple-400'];
+
+            let idx = 0;
+            while (document.getElementById(`input-p${idx}`)) {
+                const nameVal = document.getElementById(`input-p${idx}`).value.trim() || `Pemain ${idx + 1}`;
+                players.push({
+                    id: idx + 1,
+                    name: nameVal,
+                    score: 0,
+                    avatar: avatars[idx % avatars.length],
+                    color: colors[idx % colors.length]
+                });
+                idx++;
+            }
+
+            closeModal('modal-player-names');
+            document.getElementById('difficulty-selector-container').style.display = (currentGameMode === 'single') ? 'flex' : 'none';
+            updateGlobalStatusBar();
+            showScreen('screen-select-topic');
+        }
+
+        function selectTopic(topic) {
+            currentTopic = topic;
+            showScreen('screen-select-qcount');
+        }
+
+        function setQuestionCount(count) {
+            totalRounds = count;
+            [5, 10, 15, 20].forEach(c => {
+                const btn = document.getElementById(`btn-qcount-${c}`);
+                if (c === count) {
+                    btn.className = 'pop-btn py-3 px-4 bg-emerald-500 text-white rounded-2xl font-black text-lg border-b-4 border-emerald-700 flex items-center justify-center space-x-2';
+                } else {
+                    btn.className = 'pop-btn py-3 px-4 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-2xl font-black text-lg border-b-4 border-slate-300 flex items-center justify-center space-x-2';
+                }
+            });
+            playSound('click');
+        }
+
+        function setDifficulty(diff) {
+            currentDifficulty = diff;
+            ['easy', 'medium', 'hard'].forEach(d => {
+                const btn = document.getElementById(`diff-${d}`);
+                if (d === diff) {
+                    btn.className = 'pop-btn px-4 py-1.5 bg-emerald-500 text-white rounded-xl font-bold text-xs border-2 border-emerald-600';
+                } else {
+                    btn.className = 'pop-btn px-4 py-1.5 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs';
+                }
+            });
+        }
+
+        /* ------------------------------------------------------------------
+           6. GAMEPLAY ENGINE (INDEPENDENT RANDOM QUESTIONS PER PANEL)
+           ------------------------------------------------------------------ */
+        function startNewGameSession() {
+            players.forEach(p => p.score = 0);
+            currentRound = 0;
+            showScreen('screen-gameplay');
+            nextRound();
+        }
+
+        function generateRandomQuestionForTopic(topic) {
+            const rawList = QUESTION_BANK[topic] || QUESTION_BANK.word;
+            const qTemplate = rawList[Math.floor(Math.random() * rawList.length)];
+
+            if (qTemplate.type === 'math_add') {
+                let maxVal = currentDifficulty === 'easy' ? 10 : (currentDifficulty === 'medium' ? 15 : 20);
+                let a = Math.floor(Math.random() * (maxVal - 2)) + 1;
+                let b = Math.floor(Math.random() * (maxVal - a)) + 1;
+                return { type: 'math_add', a, b, item: qTemplate.item, correctAnswer: (a + b).toString(), options: generateMathOptions(a + b) };
+            } else if (qTemplate.type === 'math_sub') {
+                let maxVal = currentDifficulty === 'easy' ? 10 : (currentDifficulty === 'medium' ? 15 : 20);
+                let a = Math.floor(Math.random() * (maxVal - 2)) + 2;
+                let b = Math.floor(Math.random() * a) + 1;
+                return { type: 'math_sub', a, b, item: qTemplate.item, correctAnswer: (a - b).toString(), options: generateMathOptions(a - b) };
+            } else {
+                return {
+                    visual: qTemplate.visual,
+                    q: qTemplate.q,
+                    correctAnswer: qTemplate.answer,
+                    options: [...qTemplate.options].sort(() => Math.random() - 0.5)
+                };
+            }
+        }
+
+        function generateMathOptions(correctVal) {
+            let opts = new Set([correctVal.toString()]);
+            while (opts.size < 4) {
+                let offset = Math.floor(Math.random() * 7) - 3;
+                let val = correctVal + offset;
+                if (val >= 0 && val !== correctVal) opts.add(val.toString());
+            }
+            return Array.from(opts).sort(() => Math.random() - 0.5);
+        }
+
+        function nextRound() {
+            clearInterval(roundTimer);
+
+            if (currentRound >= totalRounds) {
+                finishGame();
+                return;
+            }
+
+            currentRound++;
+            document.getElementById('current-q-num').innerText = currentRound;
+            document.getElementById('total-q-num').innerText = totalRounds;
+
+            document.getElementById('gameplay-mode-label').innerText =
+                currentGameMode === 'single' ? 'Mode Solo' :
+                currentGameMode === 'duel' ? 'Duel Split-Screen' :
+                currentGameMode === '4player' ? '4 Pemain Split-Screen' : 'Mode Kelompok / Tim';
+
+            const gridContainer = document.getElementById('split-screen-grid');
+            gridContainer.innerHTML = '';
+
+            // Responsive Layout Grids
+            if (players.length === 1) {
+                gridContainer.className = "flex-1 grid grid-cols-1 gap-2 overflow-y-auto p-1";
+            } else if (players.length === 2) {
+                gridContainer.className = "flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto p-1";
+            } else {
+                gridContainer.className = "flex-1 grid grid-cols-2 md:grid-cols-4 gap-2 overflow-y-auto p-1";
+            }
+
+            const btnColors = ['bg-amber-400 border-amber-600', 'bg-emerald-400 border-emerald-600', 'bg-sky-400 border-sky-600', 'bg-purple-400 border-purple-600'];
+
+            // RENDER INDEPENDENT QUESTION CARD FOR EACH PLAYER/KELOMPOK
+            players.forEach((player) => {
+                const qData = generateRandomQuestionForTopic(currentTopic);
+
+                let visualHTML = '';
+                let questionPrompt = '';
+
+                if (qData.type === 'math_add') {
+                    questionPrompt = `${qData.a} + ${qData.b} = ?`;
+                    for (let i = 0; i < qData.a; i++) visualHTML += `<span class="text-lg sm:text-2xl">${qData.item}</span>`;
+                    visualHTML += `<span class="text-lg font-black text-amber-500 mx-1">+</span>`;
+                    for (let i = 0; i < qData.b; i++) visualHTML += `<span class="text-lg sm:text-2xl">${qData.item}</span>`;
+                } else if (qData.type === 'math_sub') {
+                    questionPrompt = `${qData.a} - ${qData.b} = ?`;
+                    for (let i = 0; i < qData.a - qData.b; i++) visualHTML += `<span class="text-lg sm:text-2xl">${qData.item}</span>`;
+                    for (let i = 0; i < qData.b; i++) visualHTML += `<span class="text-lg sm:text-2xl opacity-30">❌</span>`;
+                } else {
+                    questionPrompt = qData.q;
+                    visualHTML = `<span class="text-4xl sm:text-5xl">${qData.visual}</span>`;
+                }
+
+                let optionsHTML = '';
+                qData.options.forEach((opt, idx) => {
+                    optionsHTML += `
+                        <button onclick="checkPanelAnswer(${player.id}, '${opt}', '${qData.correctAnswer}', this)"
+                                class="pop-btn w-full py-2 px-1.5 ${btnColors[idx % btnColors.length]} text-white font-black text-xs sm:text-sm rounded-xl border-b-4 flex items-center justify-center text-center shadow">
+                            ${opt}
+                        </button>
+                    `;
+                });
+
+                const panel = document.createElement('div');
+                panel.className = `split-card p-3 flex flex-col justify-between ${player.color} relative overflow-hidden`;
+                panel.id = `panel-player-${player.id}`;
+                panel.innerHTML = `
+                    <!-- Header -->
+                    <div class="flex items-center justify-between border-b pb-1 mb-1 border-slate-200">
+                        <div class="flex items-center space-x-1">
+                            <span class="text-xl sm:text-2xl">${player.avatar}</span>
+                            <span class="font-black text-sky-950 text-xs sm:text-sm truncate max-w-[100px]">${player.name}</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button onclick="speakQuestion('${questionPrompt}')" class="bg-sky-500 hover:bg-sky-600 text-white p-1 rounded-lg text-xs" title="Baca Soal">🔊</button>
+                            <span id="score-p${player.id}" class="bg-amber-300 text-amber-950 font-black px-2 py-0.5 rounded-lg text-xs border border-amber-400">
+                                ${player.score} pt
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Question Area -->
+                    <div class="flex flex-col items-center justify-center my-auto py-1 text-center">
+                        <div class="flex flex-wrap items-center justify-center gap-1 max-h-16 overflow-y-auto bg-white/80 w-full rounded-xl p-1 mb-1 border border-white">
+                            ${visualHTML}
+                        </div>
+                        <div class="font-black text-sky-900 text-xs sm:text-sm leading-tight">
+                            ${questionPrompt}
+                        </div>
+                    </div>
+
+                    <!-- Options Grid -->
+                    <div class="grid grid-cols-2 gap-1.5 mt-1">
+                        ${optionsHTML}
+                    </div>
+                `;
+
+                gridContainer.appendChild(panel);
+            });
+
+            startTimer();
+        }
+
+        function checkPanelAnswer(playerId, selectedOpt, correctOpt, btnElem) {
+            const pIdx = players.findIndex(p => p.id === playerId);
+            if (pIdx === -1) return;
+
+            const panel = document.getElementById(`panel-player-${playerId}`);
+
+            if (selectedOpt === correctOpt) {
+                playSound('correct');
+                players[pIdx].score += 10;
+                document.getElementById(`score-p${playerId}`).innerText = `${players[pIdx].score} pt`;
+
+                // Panel Flash Effect
+                panel.classList.add('ring-4', 'ring-emerald-400');
+                document.getElementById('feedback-message').innerHTML = `🌟 <strong>${players[pIdx].name}</strong> MENJAWAB BENAR! (+10 Poin)`;
+            } else {
+                playSound('wrong');
+                panel.classList.add('ring-4', 'ring-rose-400');
+                document.getElementById('feedback-message').innerHTML = `💪 <strong>${players[pIdx].name}</strong> Kurang tepat! Jawaban benar: ${correctOpt}`;
+            }
+
+            // Disable buttons in this panel for the round
+            panel.querySelectorAll('button').forEach(b => b.disabled = true);
+
+            updateGlobalStatusBar();
+
+            // If all players have answered in this round, move to next round quickly
+            const disabledPanels = document.querySelectorAll('.split-card button:disabled').length;
+            if (disabledPanels >= players.length * 4) {
+                setTimeout(nextRound, 1200);
+            }
+        }
+
+        function startTimer() {
+            timerSeconds = 20;
+            document.getElementById('gameplay-timer-val').innerText = `${timerSeconds}s`;
+
+            roundTimer = setInterval(() => {
+                timerSeconds--;
+                document.getElementById('gameplay-timer-val').innerText = `${timerSeconds}s`;
+
+                if (timerSeconds <= 0) {
+                    clearInterval(roundTimer);
+                    playSound('wrong');
+                    document.getElementById('feedback-message').innerText = '⏰ Waktu Habis untuk ronde ini!';
+                    setTimeout(nextRound, 1200);
+                }
+            }, 1000);
+        }
+
+        /* ------------------------------------------------------------------
+           7. PODIUM & RESULT RECAP ENGINE
+           ------------------------------------------------------------------ */
+        function finishGame() {
+            showScreen('screen-result');
+            playSound('correct');
+
+            let sorted = [...players].sort((a, b) => b.score - a.score);
+
+            const podiumContainer = document.getElementById('podium-container');
+            podiumContainer.innerHTML = '';
+
+            const podiumConfigs = [
+                { rank: 2, height: 'h-24 sm:h-28', bg: 'bg-slate-300 border-slate-400', medal: '🥈', title: 'Juara 2' },
+                { rank: 1, height: 'h-32 sm:h-36', bg: 'bg-amber-300 border-amber-500', medal: '👑 🥇', title: 'Juara 1' },
+                { rank: 3, height: 'h-16 sm:h-20', bg: 'bg-amber-700/50 text-white border-amber-800', medal: '🥉', title: 'Juara 3' }
+            ];
+
+            let podiumData = [];
+            if (sorted[1]) podiumData.push({ player: sorted[1], ...podiumConfigs[0] });
+            if (sorted[0]) podiumData.push({ player: sorted[0], ...podiumConfigs[1] });
+            if (sorted[2]) podiumData.push({ player: sorted[2], ...podiumConfigs[2] });
+
+            podiumData.forEach(item => {
+                podiumContainer.innerHTML += `
+                    <div class="flex flex-col items-center justify-end w-24 sm:w-28">
+                        <div class="text-center mb-1 bounce-gentle">
+                            <span class="text-2xl sm:text-3xl block">${item.medal}</span>
+                            <span class="font-black text-sky-950 text-xs truncate block max-w-[90px]">${item.player.name}</span>
+                            <span class="text-xs font-black text-emerald-700 block">${item.player.score} pt</span>
+                        </div>
+                        <div class="w-full ${item.height} ${item.bg} border-t-4 rounded-t-2xl flex flex-col items-center justify-center font-black text-slate-800 text-xs shadow-md">
+                            ${item.title}
+                        </div>
+                    </div>
+                `;
+            });
+
+            const recapList = document.getElementById('result-recap-list');
+            recapList.innerHTML = '';
+            sorted.forEach((p, idx) => {
+                recapList.innerHTML += `
+                    <div class="flex items-center justify-between border-b border-amber-200/60 pb-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-black text-amber-700">#${idx + 1}</span>
+                            <span>${p.avatar} ${p.name}</span>
+                        </div>
+                        <span class="font-black text-emerald-700">${p.score} Poin</span>
+                    </div>
+                `;
+                saveToLeaderboard(p.name, p.score);
+            });
+
+            try {
+                confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
+            } catch(e){}
+        }
+
+        function restartCurrentGame() {
+            startNewGameSession();
+        }
+
+        function updateGlobalStatusBar() {
+            document.getElementById('display-player-name').innerText = players[0]?.name || 'Pemain';
+            document.getElementById('display-player-score').innerText = `${players[0]?.score || 0} Poin`;
+        }
+
+        /* ------------------------------------------------------------------
+           8. LOCALSTORAGE LEADERBOARD
+           ------------------------------------------------------------------ */
+        function saveToLeaderboard(name, score) {
+            let list = JSON.parse(localStorage.getItem('petualangan_pintar_scores') || '[]');
+            list.push({ name, score, date: new Date().toLocaleDateString('id-ID') });
+            list.sort((a, b) => b.score - a.score);
+            list = list.slice(0, 10);
+            localStorage.setItem('petualangan_pintar_scores', JSON.stringify(list));
+        }
+
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboard-list');
+            let list = JSON.parse(localStorage.getItem('petualangan_pintar_scores') || '[]');
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="text-center py-4 text-xs font-bold text-slate-400">Belum ada catatan skor!</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            list.forEach((item, idx) => {
+                container.innerHTML += `
+                    <div class="flex items-center justify-between bg-sky-50 p-2.5 rounded-xl border border-sky-100 text-xs font-bold">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-6 h-6 rounded-full ${idx === 0 ? 'bg-amber-400 text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center font-black">${idx + 1}</span>
+                            <span class="text-sky-900">${item.name}</span>
+                        </div>
+                        <div class="text-emerald-600 font-black">${item.score} Poin</div>
+                    </div>
+                `;
+            });
+        }
+
+        function clearLeaderboard() {
+            if (confirm("Hapus seluruh riwayat skor?")) {
+                localStorage.removeItem('petualangan_pintar_scores');
+                renderLeaderboard();
+            }
+        }
+    </script>
+</body>
+</html>
