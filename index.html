@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Petualangan Pintar - Belajar Membaca & Berhitung SD Kelas 1</title>
+    <title>Petualangan Anak Hebat - Belajar Membaca & Berhitung SD Kelas 1</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Canvas Confetti CDN -->
@@ -524,7 +524,7 @@
             }
         }
 
-        function playSynthTone(freq, type = 'sine', duration = 0.15, vol = 0.1) {
+        function playSynthTone(freq, type = 'sine', duration = 0.05, vol = 0.7) {
             if (!soundEnabled || !audioCtx) return;
             try {
                 const osc = audioCtx.createOscillator();
@@ -577,7 +577,7 @@
                 playSynthTone(220, 'sawtooth', 0.15, 0.2);
                 setTimeout(() => playSynthTone(174.61, 'sawtooth', 0.2, 0.2), 150);
             } else if (type === 'click') {
-                playSynthTone(440, 'sine', 0.05, 0.1);
+                playSynthTone(440, 'sine', 0.01, 0.1);
             }
         }
 
